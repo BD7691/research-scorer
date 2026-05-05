@@ -1,0 +1,65 @@
+# Example: Systematic Macro Trading Desk
+sources:
+  arxiv:
+    enabled: true
+    oai_url: "https://oaipmh.arxiv.org/oai"
+    sets:
+      - "q-fin:q-fin:TR"
+      - "q-fin:q-fin:ST"
+      - "q-fin:q-fin:PM"
+      - "q-fin:q-fin:RM"
+      - "econ:econ:EM"
+    delay_sec: 3
+  arxiv_filtered:
+    enabled: true
+    sets:
+      - "stat:stat:ML"
+    daily_ceiling: 20
+    delay_sec: 3
+    keyword_tier1: ["time series", "regime", "changepoint", "forecasting", "macro"]
+    keyword_tier2: ["interest rate", "yield curve", "volatility", "currency"]
+  repec_nep:
+    enabled: true
+    feeds:
+      nep-mac: "https://nep.repec.org/rss/nep-mac.rss.xml"
+      nep-mon: "https://nep.repec.org/rss/nep-mon.rss.xml"
+      nep-fmk: "https://nep.repec.org/rss/nep-fmk.rss.xml"
+      nep-for: "https://nep.repec.org/rss/nep-for.rss.xml"
+      nep-ets: "https://nep.repec.org/rss/nep-ets.rss.xml"
+    delay_sec: 5
+scoring:
+  model: "claude-haiku-4-5-20251001"
+  max_tokens: 500
+  temperature: 0
+  token_warn_threshold: 400000
+  prompt_file: "scorer_prompt.md"
+  filtered_prompt_file: null
+context:
+  roadmap_file: "context/gaps.md"
+  gaps_file: "context/gaps.md"
+  graveyard_file: "context/graveyard.md"
+  assumptions_file: "context/assumptions.md"
+entities:
+  route_threshold: 4
+  targets:
+    - name: "Rates"
+      domain: "yield curve modeling, term structure, interest rate derivatives, duration management"
+    - name: "FX"
+      domain: "currency carry, PPP, cross-currency basis, central bank policy impact"
+    - name: "Commodities"
+      domain: "energy markets, metals, agricultural futures, contango/backwardation"
+    - name: "Cross-Asset"
+      domain: "macro regime detection, risk parity, correlation dynamics, portfolio construction"
+delivery:
+  ranked_output: "output/research_ranked.md"
+  daily_summary: "output/daily_summary.md"
+  sources_dir: "output/sources"
+  email:
+    enabled: true
+    digest_threshold: 18
+    digest_max_papers: 5
+paths:
+  data_dir: "data"
+monitoring:
+  silent_failure_hours: 72
+  consecutive_zero_threshold: 3

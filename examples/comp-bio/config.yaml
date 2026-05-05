@@ -1,0 +1,54 @@
+# Example: Computational Biology Lab
+sources:
+  arxiv:
+    enabled: true
+    oai_url: "https://oaipmh.arxiv.org/oai"
+    sets:
+      - "q-bio:q-bio:BM"
+      - "q-bio:q-bio:GN"
+      - "q-bio:q-bio:QM"
+    delay_sec: 3
+  arxiv_filtered:
+    enabled: true
+    sets:
+      - "cs:cs:LG"
+    daily_ceiling: 15
+    delay_sec: 3
+    keyword_tier1: ["protein", "drug delivery", "CRISPR", "gene editing", "nanoparticle"]
+    keyword_tier2: ["lipid", "mRNA", "guide RNA", "off-target"]
+  repec_nep:
+    enabled: false
+    feeds: {}
+    delay_sec: 5
+scoring:
+  model: "claude-haiku-4-5-20251001"
+  max_tokens: 500
+  temperature: 0
+  token_warn_threshold: 400000
+  prompt_file: "scorer_prompt.md"
+  filtered_prompt_file: null
+context:
+  roadmap_file: "context/gaps.md"
+  gaps_file: "context/gaps.md"
+  graveyard_file: "context/graveyard.md"
+  assumptions_file: "context/assumptions.md"
+entities:
+  route_threshold: 4
+  targets:
+    - name: "Delivery"
+      domain: "LNP formulation, tropism, endosomal escape, biodistribution, CNS targeting"
+    - name: "Guide Design"
+      domain: "gRNA tiling, off-target scoring, PAM flexibility, base editing efficiency"
+delivery:
+  ranked_output: "output/research_ranked.md"
+  daily_summary: "output/daily_summary.md"
+  sources_dir: "output/sources"
+  email:
+    enabled: true
+    digest_threshold: 18
+    digest_max_papers: 5
+paths:
+  data_dir: "data"
+monitoring:
+  silent_failure_hours: 72
+  consecutive_zero_threshold: 3

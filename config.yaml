@@ -1,0 +1,95 @@
+# research-scorer configuration
+# Copy this file and customize for your domain.
+
+# --- Data Sources ---
+sources:
+  arxiv:
+    enabled: true
+    oai_url: "https://oaipmh.arxiv.org/oai"
+    # arXiv set specs — pick categories relevant to your domain.
+    # Full list: https://arxiv.org/category_taxonomy
+    # Format: "group:group:category" (verified via OAI-PMH ListSets)
+    sets:
+      - "q-fin:q-fin:TR"   # Trading and Market Microstructure
+      - "q-fin:q-fin:ST"   # Statistical Finance
+      - "q-fin:q-fin:CP"   # Computational Finance
+    delay_sec: 3  # Polite delay between OAI-PMH requests
+
+  # Optional second arXiv pipeline with keyword pre-filter.
+  # Useful for high-volume categories where most papers are irrelevant.
+  arxiv_filtered:
+    enabled: false
+    sets:
+      - "cs:cs:CL"   # Computation and Language
+      - "cs:cs:AI"   # Artificial Intelligence
+    daily_ceiling: 30  # Max papers passing keyword filter per run
+    delay_sec: 3
+    # Two-tier keyword gate — match in either tier passes.
+    keyword_tier1:
+      - "agent"
+      - "retrieval"
+      - "tool use"
+      - "reasoning"
+    keyword_tier2:
+      - "time series"
+      - "forecasting"
+      - "calibration"
+
+  repec_nep:
+    enabled: true
+    feeds:
+      nep-fmk: "https://nep.repec.org/rss/nep-fmk.rss.xml"
+      nep-mst: "https://nep.repec.org/rss/nep-mst.rss.xml"
+      nep-rmg: "https://nep.repec.org/rss/nep-rmg.rss.xml"
+      nep-for: "https://nep.repec.org/rss/nep-for.rss.xml"
+      nep-ets: "https://nep.repec.org/rss/nep-ets.rss.xml"
+    delay_sec: 5
+
+# --- Scoring ---
+scoring:
+  model: "claude-haiku-4-5-20251001"
+  max_tokens: 500
+  temperature: 0
+  token_warn_threshold: 400000
+  prompt_file: "scorer_prompt.md"
+  # Optional second scorer for the filtered pipeline
+  filtered_prompt_file: null
+
+# --- Context Files (dynamic injection into scorer prompt) ---
+# These files are read every run and injected into {{PLACEHOLDERS}}.
+# Update them as your priorities change — scoring adapts automatically.
+context:
+  roadmap_file: "context/gaps.md"
+  gaps_file: "context/gaps.md"
+  graveyard_file: "context/graveyard.md"
+  assumptions_file: "context/assumptions.md"
+
+# --- Entities (for per-project routing) ---
+# Define your teams, projects, or focus areas.
+# Papers scoring >= route_threshold on any entity get flagged for that entity.
+entities:
+  route_threshold: 4
+  targets:
+    - name: "Project Alpha"
+      domain: "signal processing, regime detection, execution quality"
+    - name: "Project Beta"
+      domain: "risk management, portfolio construction, hedging"
+
+# --- Delivery ---
+delivery:
+  ranked_output: "output/research_ranked.md"
+  daily_summary: "output/daily_summary.md"
+  sources_dir: "output/sources"
+  email:
+    enabled: false  # Set to true and configure .env to enable weekly digest
+    digest_threshold: 18
+    digest_max_papers: 5
+
+# --- Paths ---
+paths:
+  data_dir: "data"
+
+# --- Monitoring ---
+monitoring:
+  silent_failure_hours: 72
+  consecutive_zero_threshold: 3
